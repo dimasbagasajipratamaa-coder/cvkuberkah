@@ -814,4 +814,58 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+/* Mobile Responsive Improvements for Preview & Print Views */
+@media (max-width: 768px) {
+  .preview-scroll-container {
+    padding: 1.5rem 0.5rem !important;
+  }
+  
+  .cv-paper-preview {
+    padding: 15px !important;
+    font-size: 8.5pt !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  /* Stack flex headers vertically to prevent squishing on small screens */
+  .cv-item-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+  
+  .cv-item-sub {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+
+  /* Make preview modal paper responsive on mobile dashboard */
+  .preview-modal-body .cv-paper {
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 15px !important;
+    box-shadow: none !important;
+  }
+
+  /* Wrap and stack preview tabs on mobile */
+  .preview-tabs {
+    flex-wrap: wrap !important;
+    padding: 0.5rem 0.5rem 0 !important;
+  }
+  
+  .preview-tabs .preview-tab-btn {
+    padding: 0.5rem 0.5rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .preview-tabs .lang-toggle-btn {
+    flex: none !important;
+    width: 100% !important;
+    margin: 0.25rem 0 !important;
+    max-width: none !important;
+  }
+}
+
 
