@@ -233,7 +233,7 @@ const downloadWord = () => {
   <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; border: none; margin-top: 30px;">
     <tr>
       <td width="60%" style="border: none;"></td>
-      <td width="40%" align="left" style="border: none; font-size: 11pt; line-height: 1.4;">
+      <td width="40%" align="right" style="border: none; font-size: 11pt; line-height: 1.4; text-align: right;">
         <div style="margin-bottom: 50px;">${isEng ? 'Sincerely,' : 'Hormat saya,'}</div>
         <strong>${fullName}</strong>
       </td>
@@ -844,7 +844,7 @@ onMounted(() => {
 
               <!-- Closing Signature block (Rata Kanan) -->
               <div style="margin-top: 3rem; text-align: right; width: 100%; display: flex; justify-content: flex-end; font-size: 10pt; line-height: 1.4;">
-                <div style="text-align: left; width: 160px;">
+                <div style="text-align: right; width: 160px;">
                   <p style="margin: 0 0 3.5rem 0;">{{ translateToEnglish ? 'Sincerely,' : 'Hormat saya,' }}</p>
                   <strong>{{ selectedCVDetails.full_name }}</strong>
                 </div>
