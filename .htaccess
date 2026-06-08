@@ -1,0 +1,22 @@
+RewriteEngine On
+RewriteBase /cvkuberkah/
+
+# 1. Exclude the API folder from rewrites
+RewriteCond %{REQUEST_URI} ^/cvkuberkah/api/ [NC]
+RewriteRule ^ - [L]
+
+# 2. Block direct HTTP access to the frontend source code folder
+RewriteRule ^frontend/ - [F,L]
+
+# 3. Allow real assets inside dist/ to pass through directly
+RewriteCond %{REQUEST_URI} ^/cvkuberkah/dist/ [NC]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# 4. Rewrite all non-existent paths to Vue's index.html (allowing History mode routing)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ dist/index.html [L]
+
+# 5. Rewrite root request (empty string) to dist/index.html
+RewriteRule ^$ dist/index.html [L]
