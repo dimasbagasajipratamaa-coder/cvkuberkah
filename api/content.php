@@ -23,7 +23,7 @@ if ($method === 'GET') {
             "company_profile" => $settings['company_profile'] ?? [
                 "name" => "CV Kuberkah",
                 "tagline" => "Partner Karir Terpercaya",
-                "whatsapp" => "6289656111199"
+                "whatsapp" => "6285143606723"
             ]
         ];
         

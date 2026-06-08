@@ -93,6 +93,9 @@ try {
         if (!$stmt->fetch()) {
             $insert = $db->prepare("INSERT INTO content_settings (setting_key, setting_value) VALUES (?, ?)");
             $insert->execute([$key, json_encode($value)]);
+        } else {
+            $update = $db->prepare("UPDATE content_settings SET setting_value = ? WHERE setting_key = ?");
+            $update->execute([json_encode($value), $key]);
         }
     }
 
@@ -200,7 +203,7 @@ try {
         "name" => "CV Kuberkah",
         "tagline" => "Partner Karir Terpercaya Anda",
         "description" => "CV Kuberkah hadir untuk membantu pencari kerja membuat CV ATS-friendly dan Surat Lamaran Kerja secara praktis dan profesional. Sistem pembentukan deskripsi otomatis dan validasi manual memastikan CV Anda siap bersaing di pasar kerja modern.",
-        "whatsapp" => "6289656111199", // Admin WhatsApp target
+        "whatsapp" => "6285143606723", // Admin WhatsApp target
         "email" => "support@cvkuberkah.com",
         "address" => "Gedung Karir Indonesia, Lt. 3, Jl. Margonda Raya No. 12, Depok, Jawa Barat",
         "instagram" => "@cv.kuberkah",

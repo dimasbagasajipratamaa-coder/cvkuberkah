@@ -64,7 +64,7 @@ const openWhatsApp = () => {
   if (!activeRequest.value || !companyProfile.value) return
   
   const user = JSON.parse(localStorage.getItem('user'))
-  const waNumber = companyProfile.value.whatsapp || '6289656111199'
+  const waNumber = companyProfile.value.whatsapp || '6285143606723'
   
   const text = `Halo Admin *CV Kuberkah*,\n\nSaya ingin mengajukan verifikasi pembayaran untuk pesanan CV ATS saya.\n\n*Detail Pesanan:*\n- *Nama Customer:* ${user.name}\n- *Email:* ${user.email}\n- *ID Request:* #${activeRequest.value.id}\n- *Nama Paket:* ${activeRequest.value.package_name}\n- *Total Transfer:* Rp ${parseFloat(activeRequest.value.price).toLocaleString('id-ID')}\n\nMohon untuk diperiksa dan diaktifkan akses download-nya. Terima kasih! 🙏`
   
