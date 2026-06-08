@@ -357,7 +357,7 @@ const downloadWord = () => {
 
   // Build Header HTML
   const headerHtml = photoUrl ? `
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; border-bottom: 2px solid #333333; margin-bottom: 15px; padding-bottom: 10px; border: none; margin-top: 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 15px; padding-bottom: 10px; border: none; margin-top: 0;">
       <tr>
         <td align="left" valign="top" style="border: none; padding: 0; margin: 0;">
           <div style="font-size: 20pt; font-weight: bold; text-transform: uppercase; font-family: ${fontFamily}; margin: 0;">${fullName}</div>
@@ -371,7 +371,7 @@ const downloadWord = () => {
       </tr>
     </table>
   ` : `
-    <div style="text-align: center; border-bottom: 2px solid #333333; margin-bottom: 15px; padding-bottom: 10px; width: 100%; margin-top: 0; padding-top: 0;">
+    <div style="text-align: center; margin-bottom: 15px; padding-bottom: 10px; width: 100%; margin-top: 0; padding-top: 0;">
       <div style="font-size: 20pt; font-weight: bold; text-transform: uppercase; font-family: ${fontFamily}; margin: 0; text-align: center;">${fullName}</div>
       <div style="font-size: 10pt; color: #555555; margin-top: 5px; font-family: ${fontFamily}; text-align: center; margin-bottom: 0;">
         ${address} &nbsp;|&nbsp; ${phone} &nbsp;|&nbsp; ${email} ${linkedin ? `&nbsp;|&nbsp; ${linkedin}` : ''}
