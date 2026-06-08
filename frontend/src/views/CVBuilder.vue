@@ -36,7 +36,23 @@ const form = reactive({
   organization: [],
   certifications: [],
   soft_skills: [],
-  hard_skills: []
+  hard_skills: [],
+  cover_letter_answers: {
+    kota_pembuatan: '',
+    tanggal_pembuatan: '',
+    posisi_dilamar: '',
+    penerima_surat: 'HRD Manager / Team Rekrutmen',
+    nama_perusahaan: '',
+    alamat_perusahaan: '',
+    sumber_info: '',
+    tahun_pengalaman: '',
+    bidang_keahlian: '',
+    perusahaan_sebelumnya: '',
+    jabatan_terakhir: '',
+    jobdesc_singkat: '',
+    prestasi: '',
+    tools_kunci: ''
+  }
 })
 
 // Skills input tags helper
@@ -105,6 +121,41 @@ const compiledAboutMe = computed(() => {
   const part5 = ans.meyakinkan ? `saya berkomitmen tinggi memberikan hasil kerja maksimal karena ${ans.meyakinkan}.` : ''
   
   return `${part1}${part2}${part3}${part4}${part5}`
+})
+
+const hasCoverLetter = computed(() => {
+  return packageName.value.toLowerCase().includes('surat lamaran') || packageName.value.toLowerCase().includes('bundle')
+})
+
+const totalSteps = computed(() => hasCoverLetter.value ? 8 : 7)
+
+const activePreviewTab = ref('cv')
+
+const compiledCoverLetter = computed(() => {
+  const ans = form.cover_letter_answers
+  const kota = ans.kota_pembuatan || '[Kota Pembuatan]'
+  const tanggal = ans.tanggal_pembuatan || '[Tanggal Bulan Tahun]'
+  const posisi = ans.posisi_dilamar || '[Nama Posisi yang Dilamar]'
+  const penerima = ans.penerima_surat || '[HRD Manager / Team Rekrutmen]'
+  const perusahaan = ans.nama_perusahaan || '[Nama Perusahaan Tujuan]'
+  const alamat = ans.alamat_perusahaan || '[Alamat Perusahaan / Kota]'
+  
+  const sumberInfo = ans.sumber_info || '[LinkedIn/Situs Resmi Perusahaan]'
+  const tahunExp = ans.tahun_pengalaman || '[X]'
+  const keahlian = ans.bidang_keahlian || '[Sebutkan Bidang Keahlian Utama]'
+  const persSebel = ans.perusahaan_sebelumnya || '[Nama Perusahaan Sebelumnya]'
+  const jabAkhir = ans.jabatan_terakhir || '[Jabatan Terakhir]'
+  const jobdesk = ans.jobdesc_singkat || '[Sebutkan core job desc utama singkat]'
+  const prestasi = ans.prestasi || '[Sebutkan Prestasi Terbaik]'
+  const tools = ans.tools_kunci || '[Sebutkan 2-3 Tools / Keterampilan Teknis khusus]'
+  
+  const namaKlien = form.full_name || '[Nama Lengkap Klien]'
+  const domisili = form.address || '[Kota Domisili, Provinsi]'
+  const phone = form.phone || '[Nomor WhatsApp/Telepon]'
+  const email = form.email || '[Alamat Email Profesional]'
+  const linkedin = form.linkedin ? ` | ${form.linkedin}` : ''
+  
+  return `${namaKlien}\n${domisili} | ${phone} | ${email}${linkedin}\n\n${kota}, ${tanggal}\n\nHal: Lamaran Pekerjaan – ${posisi}\n\nYth. ${penerima}\n${perusahaan}\n${alamat}\n\nDengan hormat,\n\nBerdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui ${sumberInfo}, saya bermaksud untuk mengajukan diri guna mengisi posisi ${posisi} di ${perusahaan}. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.\n\nSaya merupakan seorang profesional yang berpengalaman selama ${tahunExp} tahun di bidang ${keahlian}. Pada peran saya sebelumnya di ${persSebel} sebagai ${jabAkhir}, saya bertanggung jawab penuh dalam ${jobdesk}. Salah satu pencapaian terbesar saya adalah berhasil ${prestasi} dengan menerapkan strategi berbasis data.\n\nSelain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti ${tools}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi ${posisi} di perusahaan Bapak/Ibu.\n\nSebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk ${perusahaan}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.\n\nHormat saya,\n\n${namaKlien}`
 })
 
 // Photo handler (convert uploaded image to base64)
@@ -180,6 +231,14 @@ const submitCV = async () => {
     currentStep.value = 7
     return
   }
+  if (hasCoverLetter.value) {
+    const cl = form.cover_letter_answers
+    if (!cl.kota_pembuatan || !cl.posisi_dilamar || !cl.nama_perusahaan) {
+      error.value = 'Harap lengkapi informasi utama Surat Lamaran Kerja (Kota Pembuatan, Posisi, dan Perusahaan Tujuan) pada Langkah 8.'
+      currentStep.value = 8
+      return
+    }
+  }
   
   isLoading.value = true
   
@@ -188,6 +247,8 @@ const submitCV = async () => {
     const payload = {
       ...form,
       about_me: compiledAboutMe.value,
+      cover_letter: hasCoverLetter.value ? compiledCoverLetter.value : null,
+      cover_letter_answers: hasCoverLetter.value ? form.cover_letter_answers : null,
       package_name: packageName.value,
       price: packagePrice.value
     }
@@ -226,10 +287,10 @@ const submitCV = async () => {
         
         <!-- Progress Steps Tracker -->
         <div class="steps-tracker">
-          <div v-for="step in 7" :key="step" class="step-node" :class="{ 'active': currentStep === step, 'completed': currentStep > step }" @click="currentStep = step">
+          <div v-for="step in totalSteps" :key="step" class="step-node" :class="{ 'active': currentStep === step, 'completed': currentStep > step }" @click="currentStep = step">
             {{ step }}
           </div>
-          <div class="progress-bar-line" :style="{ width: ((currentStep - 1) / 6) * 100 + '%' }"></div>
+          <div class="progress-bar-line" :style="{ width: ((currentStep - 1) / (totalSteps - 1)) * 100 + '%' }"></div>
         </div>
       </div>
 
@@ -499,13 +560,95 @@ const submitCV = async () => {
           </div>
         </div>
 
+        <!-- STEP 8: Surat Lamaran Kerja (Hanya jika paket terpilih menyertakan surat lamaran) -->
+        <div v-if="currentStep === 8 && hasCoverLetter">
+          <h3 class="step-title">Langkah 8: Draf Surat Lamaran Kerja (Cover Letter)</h3>
+          <p class="step-desc">Isi formulir di bawah ini untuk menghasilkan surat lamaran kerja ATS-friendly yang siap pakai secara otomatis.</p>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Kota Pembuatan Surat</label>
+              <input v-model="form.cover_letter_answers.kota_pembuatan" type="text" class="form-input" placeholder="contoh: Jakarta" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tanggal Pembuatan Surat</label>
+              <input v-model="form.cover_letter_answers.tanggal_pembuatan" type="text" class="form-input" placeholder="contoh: 8 Juni 2026" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Posisi yang Dilamar</label>
+              <input v-model="form.cover_letter_answers.posisi_dilamar" type="text" class="form-input" placeholder="contoh: Software Engineer" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gelar/Penerima Surat (e.g. HRD Manager)</label>
+              <input v-model="form.cover_letter_answers.penerima_surat" type="text" class="form-input" placeholder="contoh: HRD Manager / Team Rekrutmen" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nama Perusahaan Tujuan</label>
+              <input v-model="form.cover_letter_answers.nama_perusahaan" type="text" class="form-input" placeholder="contoh: PT GoTo Gojek Tokopedia" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Alamat / Domisili Perusahaan</label>
+              <input v-model="form.cover_letter_answers.alamat_perusahaan" type="text" class="form-input" placeholder="contoh: Jakarta Selatan" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Sumber Info Lowongan</label>
+              <input v-model="form.cover_letter_answers.sumber_info" type="text" class="form-input" placeholder="contoh: LinkedIn" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lama Pengalaman Kerja (Tahun)</label>
+              <input v-model="form.cover_letter_answers.tahun_pengalaman" type="text" class="form-input" placeholder="contoh: 2" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Bidang Keahlian Utama</label>
+              <input v-model="form.cover_letter_answers.bidang_keahlian" type="text" class="form-input" placeholder="contoh: Web Development" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Perusahaan Sebelumnya</label>
+              <input v-model="form.cover_letter_answers.perusahaan_sebelumnya" type="text" class="form-input" placeholder="contoh: PT Global Tech" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Jabatan Terakhir</label>
+              <input v-model="form.cover_letter_answers.jabatan_terakhir" type="text" class="form-input" placeholder="contoh: Junior Web Developer" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Core Job Desk Singkat</label>
+              <input v-model="form.cover_letter_answers.jobdesc_singkat" type="text" class="form-input" placeholder="contoh: mengembangkan frontend web berbasis Vue" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pencapaian / Prestasi Terbaik</label>
+            <input v-model="form.cover_letter_answers.prestasi" type="text" class="form-input" placeholder="contoh: meningkatkan performa loading hingga 30%" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tools Kunci / Keterampilan Teknis (2-3 Kunci)</label>
+            <input v-model="form.cover_letter_answers.tools_kunci" type="text" class="form-input" placeholder="contoh: Vue.js, PHP, MySQL" />
+          </div>
+        </div>
+
       </div>
 
       <!-- Action Navigation Buttons -->
       <div class="wizard-footer">
         <button v-if="currentStep > 1" @click="currentStep--" class="btn btn-outline">Kembali</button>
         <div class="footer-right-actions">
-          <button v-if="currentStep < 7" @click="currentStep++" class="btn btn-primary">Lanjutkan</button>
+          <button v-if="currentStep < totalSteps" @click="currentStep++" class="btn btn-primary">Lanjutkan</button>
           <button v-else @click="submitCV" class="btn btn-secondary" :disabled="isLoading">
             {{ isLoading ? 'Menyimpan...' : 'Simpan & Proses Pembayaran' }}
           </button>
@@ -515,10 +658,20 @@ const submitCV = async () => {
 
     <!-- LIVE ATS CV PREVIEW PANEL (RIGHT) -->
     <div class="preview-panel">
-      <div class="preview-badge">⚡ Real-time ATS Preview</div>
+      <!-- Tabs switcher if the package has Cover Letter -->
+      <div class="preview-tabs" v-if="hasCoverLetter">
+        <button class="preview-tab-btn" :class="{ 'active': activePreviewTab === 'cv' }" @click="activePreviewTab = 'cv'">
+          📄 Pratinjau CV ATS
+        </button>
+        <button class="preview-tab-btn" :class="{ 'active': activePreviewTab === 'cover_letter' }" @click="activePreviewTab = 'cover_letter'">
+          ✉️ Pratinjau Surat Lamaran
+        </button>
+      </div>
+
+      <div class="preview-badge" v-if="!hasCoverLetter">⚡ Real-time ATS Preview</div>
       <div class="preview-scroll-container">
-        <!-- Replicates the exact class used for PDF Printing -->
-        <div class="cv-paper-preview" :style="{ fontFamily: form.font_family }">
+        <!-- CV PREVIEW -->
+        <div v-if="!hasCoverLetter || activePreviewTab === 'cv'" class="cv-paper-preview" :style="{ fontFamily: form.font_family }">
           <!-- Header -->
           <div :class="form.photo_url ? 'cv-header-photo' : 'cv-header'">
             <div class="cv-header-text">
@@ -628,6 +781,65 @@ const submitCV = async () => {
               <div>{{ form.soft_skills.length > 0 ? form.soft_skills.join(', ') : 'Daftar Soft Skill Anda' }}</div>
             </div>
           </div>
+        </div>
+
+        <!-- COVER LETTER PREVIEW -->
+        <div v-if="hasCoverLetter && activePreviewTab === 'cover_letter'" class="cv-paper-preview" :style="{ fontFamily: form.font_family }">
+          <!-- Sender Info -->
+          <div class="cv-name" style="text-align: left; font-weight: bold; margin-bottom: 4px;">
+            {{ form.full_name || 'NAMA LENGKAP ANDA' }}
+          </div>
+          <div class="cv-contact" style="margin-bottom: 2rem; border-bottom: 2px solid #333333; padding-bottom: 8px; font-size: 8pt; display: flex; flex-wrap: wrap; gap: 6px;">
+            <span>{{ form.address || 'Alamat Tempat Tinggal' }}</span> |
+            <span>{{ form.phone || 'No. HP Aktif' }}</span> |
+            <span>{{ form.email || 'Email Pelamar' }}</span>
+            <span v-if="form.linkedin"> | {{ form.linkedin }}</span>
+          </div>
+
+          <!-- Date -->
+          <div style="margin-bottom: 1.5rem; font-size: 9.5pt;">
+            {{ form.cover_letter_answers.kota_pembuatan || '[Kota Pembuatan]' }}, {{ form.cover_letter_answers.tanggal_pembuatan || '[Tanggal Bulan Tahun]' }}
+          </div>
+
+          <!-- Hal -->
+          <div style="font-weight: bold; margin-bottom: 1.5rem; font-size: 9.5pt;">
+            Hal: Lamaran Pekerjaan – {{ form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]' }}
+          </div>
+
+          <!-- Recipient -->
+          <div style="margin-bottom: 1.5rem; line-height: 1.4; font-size: 9.5pt;">
+            <strong>Yth. {{ form.cover_letter_answers.penerima_surat || '[HRD Manager / Team Rekrutmen]' }}</strong><br />
+            {{ form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]' }}<br />
+            {{ form.cover_letter_answers.alamat_perusahaan || '[Alamat Perusahaan / Kota]' }}
+          </div>
+
+          <!-- Salutation -->
+          <div style="margin-bottom: 1rem; font-size: 9.5pt;">
+            Dengan hormat,
+          </div>
+
+          <!-- Content Paragraphs -->
+          <div style="line-height: 1.5; text-align: justify; display: flex; flex-direction: column; gap: 1rem; font-size: 9.5pt;">
+            <p style="margin: 0; text-indent: 30px;">
+              Berdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui {{ form.cover_letter_answers.sumber_info || '[LinkedIn/Situs Resmi Perusahaan]' }}, saya bermaksud untuk mengajukan diri guna mengisi posisi {{ form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]' }} di {{ form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]' }}. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.
+            </p>
+            <p style="margin: 0; text-indent: 30px;">
+              Saya merupakan seorang profesional yang berpengalaman selama {{ form.cover_letter_answers.tahun_pengalaman || '[X]' }} tahun di bidang {{ form.cover_letter_answers.bidang_keahlian || '[Sebutkan Bidang Keahlian Utama]' }}. Pada peran saya sebelumnya di {{ form.cover_letter_answers.perusahaan_sebelumnya || '[Nama Perusahaan Sebelumnya]' }} sebagai {{ form.cover_letter_answers.jabatan_terakhir || '[Jabatan Terakhir]' }}, saya bertanggung jawab penuh dalam {{ form.cover_letter_answers.jobdesc_singkat || '[Sebutkan core job desc utama singkat]' }}. Salah satu pencapaian terbesar saya adalah berhasil {{ form.cover_letter_answers.prestasi || '[Sebutkan Prestasi Terbaik]' }} dengan menerapkan strategi berbasis data.
+            </p>
+            <p style="margin: 0; text-indent: 30px;">
+              Selain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti {{ form.cover_letter_answers.tools_kunci || '[Sebutkan 2-3 Tools / Keterampilan Teknis khusus]' }}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi {{ form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]' }} di perusahaan Bapak/Ibu.
+            </p>
+            <p style="margin: 0; text-indent: 30px;">
+              Sebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk {{ form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]' }}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.
+            </p>
+          </div>
+
+          <!-- Closing -->
+          <div style="margin-top: 2.5rem; text-align: right; width: 220px; float: right; font-size: 9.5pt; line-height: 1.4;">
+            <p style="margin: 0 0 3.5rem 0;">Hormat saya,</p>
+            <strong>{{ form.full_name || '[Nama Lengkap Klien]' }}</strong>
+          </div>
+          <div style="clear: both;"></div>
         </div>
       </div>
     </div>
@@ -1020,5 +1232,40 @@ const submitCV = async () => {
 }
 .pkg-select-features li {
   line-height: 1.3;
+}
+
+/* Preview tabs styling */
+.preview-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem 0;
+  background-color: var(--text-muted);
+  z-index: 10;
+}
+.preview-tab-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-light);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0.8;
+}
+.preview-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  opacity: 1;
+}
+.preview-tab-btn.active {
+  background: white;
+  color: var(--text-dark);
+  opacity: 1;
 }
 </style>

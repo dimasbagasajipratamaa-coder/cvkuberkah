@@ -15,6 +15,7 @@ const companyProfile = ref(null)
 // CV Preview Modal state
 const showPreviewModal = ref(false)
 const selectedCVDetails = ref(null)
+const activePreviewTab = ref('cv')
 
 const getHeaders = () => {
   const user = JSON.parse(localStorage.getItem('user'))
@@ -85,6 +86,7 @@ const previewCV = async (reqId) => {
       throw new Error('Gagal mengambil detail CV.')
     }
     selectedCVDetails.value = await response.json()
+    activePreviewTab.value = 'cv'
     showPreviewModal.value = true
   } catch (err) {
     alert(err.message)
@@ -101,6 +103,101 @@ const downloadWord = () => {
   if (!selectedCVDetails.value) return
 
   const cv = selectedCVDetails.value
+  
+  if (activePreviewTab.value === 'cover_letter' && cv.cover_letter) {
+    // Download Cover Letter instead!
+    const fontFamily = cv.font_family || 'Times New Roman, serif'
+    const fullName = cv.full_name || ''
+    
+    // We can parse or rebuild the cover letter answers
+    const ans = cv.cover_letter_answers || {}
+    const kota = ans.kota_pembuatan || ''
+    const tanggal = ans.tanggal_pembuatan || ''
+    const posisi = ans.posisi_dilamar || ''
+    const penerima = ans.penerima_surat || ''
+    const perusahaan = ans.nama_perusahaan || ''
+    const alamat = ans.alamat_perusahaan || ''
+    const email = cv.email || ''
+    const phone = cv.phone || ''
+    const address = cv.address || ''
+    const linkedin = cv.linkedin ? ` | ${cv.linkedin}` : ''
+    
+    const clHtml = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+  <meta charset="utf-8">
+  <title>Surat Lamaran - ${fullName}</title>
+  <style>
+    @page {
+      size: 8.5in 11in;
+      margin: 0.79in 0.79in 0.79in 0.79in;
+    }
+    body {
+      font-family: ${fontFamily.split(',')[0].trim()};
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #333333;
+    }
+    p {
+      margin: 0 0 10pt 0;
+      text-align: justify;
+      text-indent: 36pt;
+    }
+  </style>
+</head>
+<body>
+  <div style="font-size: 11pt; font-weight: bold; margin-bottom: 2px;">${fullName}</div>
+  <div style="font-size: 9.5pt; color: #555555; border-bottom: 2px solid #333333; margin-bottom: 20px; padding-bottom: 8px;">
+    ${address} &nbsp;|&nbsp; ${phone} &nbsp;|&nbsp; ${email} ${linkedin ? `&nbsp;|&nbsp; ${linkedin}` : ''}
+  </div>
+  
+  <div style="margin-bottom: 15px;">${kota}, ${tanggal}</div>
+  
+  <div style="font-weight: bold; margin-bottom: 15px;">Hal: Lamaran Pekerjaan – ${posisi}</div>
+  
+  <div style="margin-bottom: 20px; line-height: 1.4;">
+    <strong>Yth. ${penerima}</strong><br>
+    ${perusahaan}<br>
+    ${alamat}
+  </div>
+  
+  <div style="margin-bottom: 10px;">Dengan hormat,</div>
+  
+  <p>
+    Berdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui ${ans.sumber_info || '[LinkedIn/Situs Resmi Perusahaan]'}, saya bermaksud untuk mengajukan diri guna mengisi posisi ${posisi} di ${perusahaan}. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.
+  </p>
+  
+  <p>
+    Saya merupakan seorang profesional yang berpengalaman selama ${ans.tahun_pengalaman || '[X]'} tahun di bidang ${ans.bidang_keahlian || '[Sebutkan Bidang Keahlian Utama]'}. Pada peran saya sebelumnya di ${ans.perusahaan_sebelumnya || '[Nama Perusahaan Sebelumnya]'} sebagai ${ans.jabatan_terakhir || '[Jabatan Terakhir]'}, saya bertanggung jawab penuh dalam ${ans.jobdesc_singkat || '[Sebutkan core job desc utama singkat]'}. Salah satu pencapaian terbesar saya adalah berhasil ${ans.prestasi || '[Sebutkan Prestasi Terbaik]'} dengan menerapkan strategi berbasis data.
+  </p>
+  
+  <p>
+    Selain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti ${ans.tools_kunci || '[Sebutkan 2-3 Tools / Keterampilan Teknis khusus]'}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi ${posisi} di perusahaan Bapak/Ibu.
+  </p>
+  
+  <p>
+    Sebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk ${perusahaan}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.
+  </p>
+  
+  <div style="margin-top: 30px; margin-left: 350px; width: 220px; font-size: 11pt; line-height: 1.4;">
+    <div style="margin-bottom: 50px;">Hormat saya,</div>
+    <strong>${fullName}</strong>
+  </div>
+</body>
+</html>
+    `
+    const blob = new Blob(['\ufeff' + clHtml], { type: 'application/msword;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Surat_Lamaran_${fullName.replace(/\s+/g, '_')}.doc`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    return
+  }
+
   const fontFamily = cv.font_family || 'Times New Roman, serif'
   
   const fullName = cv.full_name || ''
@@ -445,13 +542,24 @@ onMounted(() => {
           </div>
         </div>
         <div class="modal-body preview-modal-body">
+          <!-- Tab selector in Dashboard view -->
+          <div class="preview-tabs no-print" v-if="selectedCVDetails.cover_letter">
+            <button class="preview-tab-btn" :class="{ 'active': activePreviewTab === 'cv' }" @click="activePreviewTab = 'cv'">
+              📄 CV ATS Friendly
+            </button>
+            <button class="preview-tab-btn" :class="{ 'active': activePreviewTab === 'cover_letter' }" @click="activePreviewTab = 'cover_letter'">
+              ✉️ Surat Lamaran Kerja
+            </button>
+          </div>
+
           <p class="print-instruction no-print">
             💡 <strong>Tips Cetak:</strong> Di halaman print browser Anda, centang pilihan <strong>"Background graphics"</strong> dan atur margin ke <strong>"None"</strong> atau <strong>"Default"</strong> untuk hasil terbaik. Pilih tujuan ke <strong>"Save as PDF"</strong> untuk mengunduh dokumen.
           </p>
           
           <!-- PRINT AREA -->
           <div id="ats-cv-print-area" class="cv-preview-container">
-            <div class="cv-paper" :style="{ fontFamily: selectedCVDetails.font_family || 'Times New Roman, serif' }">
+            <!-- CV PAPER -->
+            <div v-if="activePreviewTab === 'cv' || !selectedCVDetails.cover_letter" class="cv-paper" :style="{ fontFamily: selectedCVDetails.font_family || 'Times New Roman, serif' }">
               <!-- Header -->
               <div :class="selectedCVDetails.photo_url ? 'cv-header-photo' : 'cv-header'">
                 <div class="cv-header-text">
@@ -561,6 +669,65 @@ onMounted(() => {
                   <div>{{ selectedCVDetails.soft_skills.join(', ') }}</div>
                 </div>
               </div>
+            </div>
+
+            <!-- COVER LETTER PAPER -->
+            <div v-if="activePreviewTab === 'cover_letter' && selectedCVDetails.cover_letter" class="cv-paper" :style="{ fontFamily: selectedCVDetails.font_family || 'Times New Roman, serif' }">
+              <!-- Sender Info -->
+              <div class="cv-name" style="text-align: left; font-weight: bold; margin-bottom: 4px; font-size: 15pt;">
+                {{ selectedCVDetails.full_name }}
+              </div>
+              <div class="cv-contact" style="margin-bottom: 2rem; border-bottom: 2px solid #333333; padding-bottom: 8px; font-size: 8pt; display: flex; flex-wrap: wrap; gap: 6px;">
+                <span>{{ selectedCVDetails.address }}</span> |
+                <span>{{ selectedCVDetails.phone }}</span> |
+                <span>{{ selectedCVDetails.email }}</span>
+                <span v-if="selectedCVDetails.linkedin"> | {{ selectedCVDetails.linkedin }}</span>
+              </div>
+
+              <!-- Date -->
+              <div style="margin-bottom: 1.5rem; font-size: 10pt;">
+                {{ selectedCVDetails.cover_letter_answers?.kota_pembuatan || '[Kota Pembuatan]' }}, {{ selectedCVDetails.cover_letter_answers?.tanggal_pembuatan || '[Tanggal]' }}
+              </div>
+
+              <!-- Hal -->
+              <div style="font-weight: bold; margin-bottom: 1.5rem; font-size: 10pt;">
+                Hal: Lamaran Pekerjaan – {{ selectedCVDetails.cover_letter_answers?.posisi_dilamar || '[Nama Posisi]' }}
+              </div>
+
+              <!-- Recipient -->
+              <div style="margin-bottom: 1.5rem; line-height: 1.4; font-size: 10pt;">
+                <strong>Yth. {{ selectedCVDetails.cover_letter_answers?.penerima_surat || '[HRD Manager]' }}</strong><br />
+                {{ selectedCVDetails.cover_letter_answers?.nama_perusahaan || '[Nama Perusahaan]' }}<br />
+                {{ selectedCVDetails.cover_letter_answers?.alamat_perusahaan || '[Alamat]' }}
+              </div>
+
+              <!-- Salutation -->
+              <div style="margin-bottom: 1rem; font-size: 10pt;">
+                Dengan hormat,
+              </div>
+
+              <!-- Content Paragraphs -->
+              <div style="line-height: 1.6; text-align: justify; display: flex; flex-direction: column; gap: 1.25rem; font-size: 10pt;">
+                <p style="margin: 0; text-indent: 36px;">
+                  Berdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui {{ selectedCVDetails.cover_letter_answers?.sumber_info || '[LinkedIn/Situs Resmi]' }}, saya bermaksud untuk mengajukan diri guna mengisi posisi {{ selectedCVDetails.cover_letter_answers?.posisi_dilamar || '[Posisi]' }} di {{ selectedCVDetails.cover_letter_answers?.nama_perusahaan || '[Perusahaan]' }}. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.
+                </p>
+                <p style="margin: 0; text-indent: 36px;">
+                  Saya merupakan seorang profesional yang berpengalaman selama {{ selectedCVDetails.cover_letter_answers?.tahun_pengalaman || '[X]' }} tahun di bidang {{ selectedCVDetails.cover_letter_answers?.bidang_keahlian || '[Keahlian]' }}. Pada peran saya sebelumnya di {{ selectedCVDetails.cover_letter_answers?.perusahaan_sebelumnya || '[Perusahaan Sebelumnya]' }} sebagai {{ selectedCVDetails.cover_letter_answers?.jabatan_terakhir || '[Jabatan Terakhir]' }}, saya bertanggung jawab penuh dalam {{ selectedCVDetails.cover_letter_answers?.jobdesc_singkat || '[Jobdesk]' }}. Salah satu pencapaian terbesar saya adalah berhasil {{ selectedCVDetails.cover_letter_answers?.prestasi || '[Prestasi]' }} dengan menerapkan strategi berbasis data.
+                </p>
+                <p style="margin: 0; text-indent: 36px;">
+                  Selain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti {{ selectedCVDetails.cover_letter_answers?.tools_kunci || '[Tools Kunci]' }}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi {{ selectedCVDetails.cover_letter_answers?.posisi_dilamar || '[Posisi]' }} di perusahaan Bapak/Ibu.
+                </p>
+                <p style="margin: 0; text-indent: 36px;">
+                  Sebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk {{ selectedCVDetails.cover_letter_answers?.nama_perusahaan || '[Perusahaan]' }}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.
+                </p>
+              </div>
+
+              <!-- Closing -->
+              <div style="margin-top: 3rem; text-align: right; width: 220px; float: right; font-size: 10pt; line-height: 1.4;">
+                <p style="margin: 0 0 3.5rem 0;">Hormat saya,</p>
+                <strong>{{ selectedCVDetails.full_name }}</strong>
+              </div>
+              <div style="clear: both;"></div>
             </div>
           </div>
         </div>
@@ -763,5 +930,39 @@ onMounted(() => {
   color: var(--text-muted);
 }
 
-
+/* Preview tabs styling in dashboard modal */
+.preview-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--bg-main);
+  border-radius: 8px;
+  padding: 6px;
+  margin-bottom: 1.5rem;
+}
+.preview-tab-btn {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.preview-tab-btn:hover {
+  background-color: rgba(99, 102, 241, 0.05);
+  color: var(--primary);
+}
+.preview-tab-btn.active {
+  background-color: white;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
 </style>

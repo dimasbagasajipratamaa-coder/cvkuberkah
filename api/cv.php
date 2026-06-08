@@ -37,6 +37,7 @@ if ($method === 'GET') {
         $cv['certifications'] = json_decode($cv['certifications'], true);
         $cv['soft_skills'] = json_decode($cv['soft_skills'], true);
         $cv['hard_skills'] = json_decode($cv['hard_skills'], true);
+        $cv['cover_letter_answers'] = isset($cv['cover_letter_answers']) ? json_decode($cv['cover_letter_answers'], true) : null;
         
         echo json_encode($cv);
         exit;
@@ -63,6 +64,8 @@ if ($method === 'POST') {
     $price = floatval($input['price'] ?? 25000);
     $photoUrl = $input['photo_url'] ?? ''; // Expecting base64 representation or URL
     $fontFamily = trim($input['font_family'] ?? 'Times New Roman, serif');
+    $coverLetter = $input['cover_letter'] ?? null;
+    $coverLetterAnswers = $input['cover_letter_answers'] ?? null;
     
     // Read the 5 points for "Tentang Saya"
     $aboutMeAnswers = $input['about_me_answers'] ?? [];
@@ -98,8 +101,8 @@ if ($method === 'POST') {
             user_id, full_name, email, phone, address, linkedin, 
             about_me, about_me_answers, education, organization, 
             experience, certifications, soft_skills, hard_skills, 
-            photo_url, font_family, payment_status, package_name, price
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
+            photo_url, font_family, cover_letter, cover_letter_answers, payment_status, package_name, price
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)");
         
         $stmt->execute([
             $user['id'],
@@ -118,6 +121,8 @@ if ($method === 'POST') {
             json_encode($hardSkills),
             $photoUrl ?: null,
             $fontFamily,
+            $coverLetter,
+            $coverLetterAnswers ? json_encode($coverLetterAnswers) : null,
             $packageName,
             $price
         ]);

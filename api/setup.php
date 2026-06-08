@@ -43,6 +43,8 @@ try {
         hard_skills TEXT NOT NULL,
         photo_url LONGTEXT DEFAULT NULL,
         font_family VARCHAR(100) DEFAULT 'Times New Roman, serif',
+        cover_letter TEXT DEFAULT NULL,
+        cover_letter_answers TEXT DEFAULT NULL,
         payment_status ENUM('pending', 'verified') DEFAULT 'pending',
         package_name VARCHAR(100) NOT NULL,
         price DECIMAL(10,2) NOT NULL,
@@ -60,6 +62,18 @@ try {
     // Table migrations: Add font_family if it doesn't exist yet
     try {
         $db->exec("ALTER TABLE cv_requests ADD COLUMN font_family VARCHAR(100) DEFAULT 'Times New Roman, serif' AFTER photo_url");
+    } catch (PDOException $e) {
+        // Column already exists, safe to ignore
+    }
+
+    // Table migrations: Add cover_letter and cover_letter_answers if they don't exist yet
+    try {
+        $db->exec("ALTER TABLE cv_requests ADD COLUMN cover_letter TEXT DEFAULT NULL AFTER font_family");
+    } catch (PDOException $e) {
+        // Column already exists, safe to ignore
+    }
+    try {
+        $db->exec("ALTER TABLE cv_requests ADD COLUMN cover_letter_answers TEXT DEFAULT NULL AFTER cover_letter");
     } catch (PDOException $e) {
         // Column already exists, safe to ignore
     }
