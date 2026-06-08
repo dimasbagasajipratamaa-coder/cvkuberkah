@@ -5,12 +5,13 @@ import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 
-// Active wizard step (1 to 6)
+// Active wizard step (1 to 7)
 const currentStep = ref(1)
 
 // Selected package details from URL params
 const packageName = ref('Paket Basic CV ATS')
 const packagePrice = ref(25000)
+const packages = ref([])
 
 // CV Form data
 const form = reactive({
@@ -45,8 +46,36 @@ const hardSkillInput = ref('')
 const isLoading = ref(false)
 const error = ref('')
 
+// Fetch available packages from backend
+const fetchPackages = async () => {
+  try {
+    const response = await fetch('/cvkuberkah/api/content.php')
+    if (response.ok) {
+      const data = await response.json()
+      packages.value = data.packages || []
+      
+      // If we have packages and a packageName query param, make sure the price is synced
+      if (route.query.package && packages.value.length > 0) {
+        const matchingPkg = packages.value.find(p => p.name === route.query.package)
+        if (matchingPkg) {
+          packagePrice.value = matchingPkg.price
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load packages in builder:', err)
+  }
+}
+
+const selectPackage = (pkg) => {
+  packageName.value = pkg.name
+  packagePrice.value = pkg.price
+}
+
 // Load query parameters
 onMounted(() => {
+  fetchPackages()
+  
   if (route.query.package) {
     packageName.value = route.query.package
   }
@@ -135,20 +164,20 @@ const removeHardSkill = (index) => form.hard_skills.splice(index, 1)
 const submitCV = async () => {
   error.value = ''
   
-  // Quick validation
+  // Quick validation (Offset due to 7 steps)
   if (!form.full_name || !form.email || !form.phone || !form.address) {
-    error.value = 'Harap isi seluruh data informasi kontak pada Langkah 1.'
-    currentStep.value = 1
+    error.value = 'Harap isi seluruh data informasi kontak pada Langkah 2.'
+    currentStep.value = 2
     return
   }
   if (form.education.length === 0 || !form.education[0].school) {
-    error.value = 'Harap isi minimal satu riwayat pendidikan pada Langkah 3.'
-    currentStep.value = 3
+    error.value = 'Harap isi minimal satu riwayat pendidikan pada Langkah 4.'
+    currentStep.value = 4
     return
   }
   if (form.soft_skills.length === 0 || form.hard_skills.length === 0) {
-    error.value = 'Harap masukkan minimal satu keahlian soft skill dan hard skill pada Langkah 6.'
-    currentStep.value = 6
+    error.value = 'Harap masukkan minimal satu keahlian soft skill dan hard skill pada Langkah 7.'
+    currentStep.value = 7
     return
   }
   
@@ -197,10 +226,10 @@ const submitCV = async () => {
         
         <!-- Progress Steps Tracker -->
         <div class="steps-tracker">
-          <div v-for="step in 6" :key="step" class="step-node" :class="{ 'active': currentStep === step, 'completed': currentStep > step }" @click="currentStep = step">
+          <div v-for="step in 7" :key="step" class="step-node" :class="{ 'active': currentStep === step, 'completed': currentStep > step }" @click="currentStep = step">
             {{ step }}
           </div>
-          <div class="progress-bar-line" :style="{ width: ((currentStep - 1) / 5) * 100 + '%' }"></div>
+          <div class="progress-bar-line" :style="{ width: ((currentStep - 1) / 6) * 100 + '%' }"></div>
         </div>
       </div>
 
@@ -209,9 +238,33 @@ const submitCV = async () => {
       <!-- Step Form Bodies -->
       <div class="wizard-body">
         
-        <!-- STEP 1: Personal Info -->
+        <!-- STEP 1: Pilih Paket -->
         <div v-if="currentStep === 1">
-          <h3 class="step-title">Langkah 1: Informasi Kontak</h3>
+          <h3 class="step-title">Langkah 1: Pilih Paket CV Anda</h3>
+          <p class="step-desc">Pilih paket terbaik sesuai kebutuhan karir Anda untuk mulai membuat CV ATS.</p>
+          
+          <div class="packages-selection-grid">
+            <div v-for="pkg in packages" :key="pkg.id" 
+                 class="pkg-select-card" 
+                 :class="{ 'selected': packageName === pkg.name }"
+                 @click="selectPackage(pkg)">
+              <div class="pkg-select-header">
+                <span class="pkg-select-name">{{ pkg.name }}</span>
+                <span v-if="packageName === pkg.name" class="pkg-selected-badge">Terpilih</span>
+              </div>
+              <div class="pkg-select-price">Rp {{ pkg.price.toLocaleString('id-ID') }}</div>
+              <ul class="pkg-select-features">
+                <li v-for="(feat, idx) in pkg.features" :key="idx">
+                  ✓ {{ feat }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- STEP 2: Personal Info -->
+        <div v-if="currentStep === 2">
+          <h3 class="step-title">Langkah 2: Informasi Kontak</h3>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Nama Lengkap</label>
@@ -258,9 +311,9 @@ const submitCV = async () => {
           </div>
         </div>
 
-        <!-- STEP 2: Tentang Saya (5 Points) -->
-        <div v-if="currentStep === 2">
-          <h3 class="step-title">Langkah 2: Tentang Saya (Profil Profesional)</h3>
+        <!-- STEP 3: Tentang Saya (5 Points) -->
+        <div v-if="currentStep === 3">
+          <h3 class="step-title">Langkah 3: Tentang Saya (Profil Profesional)</h3>
           <p class="step-desc">Isi 5 pertanyaan di bawah untuk menyusun ringkasan profil Anda secara profesional.</p>
           
           <div class="form-group">
@@ -285,10 +338,10 @@ const submitCV = async () => {
           </div>
         </div>
 
-        <!-- STEP 3: Pendidikan -->
-        <div v-if="currentStep === 3">
+        <!-- STEP 4: Pendidikan -->
+        <div v-if="currentStep === 4">
           <div class="title-action-row">
-            <h3 class="step-title">Langkah 3: Riwayat Pendidikan</h3>
+            <h3 class="step-title">Langkah 4: Riwayat Pendidikan</h3>
             <button @click="addEducation" class="btn btn-outline btn-sm">+ Tambah</button>
           </div>
           
@@ -314,10 +367,10 @@ const submitCV = async () => {
           </div>
         </div>
 
-        <!-- STEP 4: Pengalaman Organisasi -->
-        <div v-if="currentStep === 4">
+        <!-- STEP 5: Pengalaman Organisasi -->
+        <div v-if="currentStep === 5">
           <div class="title-action-row">
-            <h3 class="step-title">Langkah 4: Pengalaman Organisasi (Opsional)</h3>
+            <h3 class="step-title">Langkah 5: Pengalaman Organisasi (Opsional)</h3>
             <button @click="addOrganization" class="btn btn-outline btn-sm">+ Tambah</button>
           </div>
           
@@ -353,10 +406,10 @@ const submitCV = async () => {
           </div>
         </div>
 
-        <!-- STEP 5: Pengalaman Kerja -->
-        <div v-if="currentStep === 5">
+        <!-- STEP 6: Pengalaman Kerja -->
+        <div v-if="currentStep === 6">
           <div class="title-action-row">
-            <h3 class="step-title">Langkah 5: Pengalaman Kerja (Opsional)</h3>
+            <h3 class="step-title">Langkah 6: Pengalaman Kerja (Opsional)</h3>
             <button @click="addExperience" class="btn btn-outline btn-sm">+ Tambah</button>
           </div>
           
@@ -392,9 +445,9 @@ const submitCV = async () => {
           </div>
         </div>
 
-        <!-- STEP 6: Sertifikat & Skills -->
-        <div v-if="currentStep === 6">
-          <h3 class="step-title">Langkah 6: Sertifikasi & Keahlian</h3>
+        <!-- STEP 7: Sertifikat & Skills -->
+        <div v-if="currentStep === 7">
+          <h3 class="step-title">Langkah 7: Sertifikasi & Keahlian</h3>
           
           <!-- Certifications subform -->
           <div class="title-action-row">
@@ -452,7 +505,7 @@ const submitCV = async () => {
       <div class="wizard-footer">
         <button v-if="currentStep > 1" @click="currentStep--" class="btn btn-outline">Kembali</button>
         <div class="footer-right-actions">
-          <button v-if="currentStep < 6" @click="currentStep++" class="btn btn-primary">Lanjutkan</button>
+          <button v-if="currentStep < 7" @click="currentStep++" class="btn btn-primary">Lanjutkan</button>
           <button v-else @click="submitCV" class="btn btn-secondary" :disabled="isLoading">
             {{ isLoading ? 'Menyimpan...' : 'Simpan & Proses Pembayaran' }}
           </button>
@@ -899,5 +952,73 @@ const submitCV = async () => {
     border-left: none;
     border-top: 2px solid var(--border-color);
   }
+}
+
+/* Package Selection step styles */
+.packages-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.pkg-select-card {
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  text-align: left;
+}
+.pkg-select-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.08);
+}
+.pkg-select-card.selected {
+  border-color: var(--primary);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.03) 0%, rgba(99, 102, 241, 0) 100%);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.12);
+}
+.pkg-select-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+.pkg-select-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-dark);
+}
+.pkg-selected-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 50px;
+}
+.pkg-select-price {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: 1rem;
+}
+.pkg-select-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.pkg-select-features li {
+  line-height: 1.3;
 }
 </style>
