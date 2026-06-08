@@ -291,6 +291,81 @@ const submitCV = async () => {
     isLoading.value = false
   }
 }
+
+const fillDummyData = async () => {
+  form.full_name = 'Dimas Bagas'
+  form.email = 'dimasbagasajipratamaa@gmail.com'
+  form.phone = '085143606723'
+  form.address = 'Jl. Margonda Raya No. 12, Depok, Jawa Barat'
+  form.linkedin = 'linkedin.com/in/dimasbagas'
+  form.font_family = 'Times New Roman, serif'
+  
+  form.about_me_answers.lulusan = 'S1 Teknik Informatika dari Universitas Indonesia'
+  form.about_me_answers.karir = 'Software Engineer'
+  form.about_me_answers.pengalaman = 'magang selama 6 month di startup e-commerce lokal'
+  form.about_me_answers.skill = 'Vue.js, PHP, MySQL, Figma'
+  form.about_me_answers.meyakinkan = 'saya memiliki dedikasi tinggi untuk memecahkan problem kode rumit'
+  
+  form.education = [
+    { school: 'Universitas Indonesia', major: 'S1 Teknik Informatika', period: '2020 - 2024' }
+  ]
+  
+  form.experience = [
+    { 
+      company: 'E-Commerce Startup', 
+      role: 'Software Engineer Intern', 
+      period: 'Maret - Agustus 2023',
+      jobdesk: 'Mengembangkan fitur frontend menggunakan Vue 3.\nOptimasi query database MySQL hingga meningkatkan performa 15%.'
+    }
+  ]
+  
+  form.organization = [
+    {
+      name: 'Himpunan Mahasiswa IT',
+      role: 'Ketua Divisi Humas',
+      period: '2021 - 2022',
+      jobdesk: 'Mengkoordinasikan publikasi acara jurusan.\nMenjalin relasi dengan pihak sponsor.'
+    }
+  ]
+  
+  form.certifications = [
+    { name: 'AWS Certified Cloud Practitioner', issuer: 'Amazon Web Services', period: '2023' }
+  ]
+  
+  form.soft_skills = ['Komunikasi Efektif', 'Manajemen Waktu', 'Kolaborasi Tim', 'Problem Solving']
+  form.hard_skills = ['Vue.js', 'PHP', 'MySQL', 'Git', 'Figma', 'HTML/CSS']
+  
+  form.cover_letter_answers.kota_pembuatan = 'Jakarta'
+  form.cover_letter_answers.tanggal_pembuatan = '8 Juni 2026'
+  form.cover_letter_answers.posisi_dilamar = 'Software Engineer'
+  form.cover_letter_answers.penerima_surat = 'HRD Manager / Team Rekrutmen'
+  form.cover_letter_answers.nama_perusahaan = 'PT GoTo Gojek Tokopedia'
+  form.cover_letter_answers.alamat_perusahaan = 'Jakarta Selatan'
+  form.cover_letter_answers.sumber_info = 'LinkedIn'
+  form.cover_letter_answers.tahun_pengalaman = '1'
+  form.cover_letter_answers.bidang_keahlian = 'Software Engineering'
+  form.cover_letter_answers.perusahaan_sebelumnya = 'E-Commerce Startup'
+  form.cover_letter_answers.jabatan_terakhir = 'Software Engineer Intern'
+  form.cover_letter_answers.jobdesc_singkat = 'mengembangkan fitur frontend dan optimasi query database'
+  form.cover_letter_answers.prestasi = 'mengoptimasikan performa sistem hingga 15%'
+  form.cover_letter_answers.tools_kunci = 'Vue 3, PHP, dan MySQL'
+
+  try {
+    const isDev = import.meta.env.DEV
+    const photoUrlPath = isDev ? '/dummy_photo.png' : '/cvkuberkah/dist/dummy_photo.png'
+    const res = await fetch(photoUrlPath)
+    if (res.ok) {
+      const blob = await res.blob()
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        form.photo_url = reader.result
+      }
+      reader.readAsDataURL(blob)
+    }
+  } catch (e) {
+    console.error('Failed to load dummy photo in frontend:', e)
+  }
+}
 </script>
 
 <template>
@@ -299,7 +374,12 @@ const submitCV = async () => {
     <div class="form-panel glass-card">
       <div class="wizard-header">
         <span class="package-indicator">🎁 {{ packageName }} (Rp {{ packagePrice.toLocaleString('id-ID') }})</span>
-        <h2>Buat CV ATS</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h2 style="margin: 0;">Buat CV ATS</h2>
+          <button type="button" class="btn btn-secondary btn-sm" @click="fillDummyData" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; background: linear-gradient(135deg, var(--secondary) 0%, #34b299 100%);">
+            ⚡ Gunakan Data Contoh
+          </button>
+        </div>
         
         <!-- Progress Steps Tracker -->
         <div class="steps-tracker">
