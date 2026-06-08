@@ -107,20 +107,32 @@ onMounted(() => {
   }
 })
 
+const translateToEnglish = ref(false)
+
 // Auto-compiled Tentang Saya (About me) summary paragraph
 const compiledAboutMe = computed(() => {
   const ans = form.about_me_answers
   if (!ans.lulusan && !ans.karir && !ans.pengalaman && !ans.skill && !ans.meyakinkan) {
-    return 'Lengkapi data formulir "Tentang Saya" untuk membuat ringkasan profesional Anda secara otomatis.'
+    return translateToEnglish.value 
+      ? 'Complete the "About Me" form to automatically generate your professional summary.'
+      : 'Lengkapi data formulir "Tentang Saya" untuk membuat ringkasan profesional Anda secara otomatis.'
   }
   
-  const part1 = ans.lulusan ? `Saya adalah lulusan ${ans.lulusan}. ` : ''
-  const part2 = ans.karir ? `Saya memiliki ketertarikan karir yang tinggi di bidang ${ans.karir}. ` : ''
-  const part3 = ans.pengalaman ? `Memiliki pengalaman di mana saya telah ${ans.pengalaman}. ` : ''
-  const part4 = ans.skill ? `Didukung dengan keahlian yang mendalam dalam hal ${ans.skill}, ` : ''
-  const part5 = ans.meyakinkan ? `saya berkomitmen tinggi memberikan hasil kerja maksimal karena ${ans.meyakinkan}.` : ''
-  
-  return `${part1}${part2}${part3}${part4}${part5}`
+  if (translateToEnglish.value) {
+    const part1 = ans.lulusan ? `I am a graduate of ${ans.lulusan}. ` : ''
+    const part2 = ans.karir ? `I have a strong career interest in the field of ${ans.karir}. ` : ''
+    const part3 = ans.pengalaman ? `With a background in ${ans.pengalaman}, ` : ''
+    const part4 = ans.skill ? `and expertise in ${ans.skill}, ` : ''
+    const part5 = ans.meyakinkan ? `I am highly committed to delivering maximum results because ${ans.meyakinkan}.` : ''
+    return `${part1}${part2}${part3}${part4}${part5}`
+  } else {
+    const part1 = ans.lulusan ? `Saya adalah lulusan ${ans.lulusan}. ` : ''
+    const part2 = ans.karir ? `Saya memiliki ketertarikan karir yang tinggi di bidang ${ans.karir}. ` : ''
+    const part3 = ans.pengalaman ? `Memiliki pengalaman di mana saya telah ${ans.pengalaman}. ` : ''
+    const part4 = ans.skill ? `Didukung dengan keahlian yang mendalam dalam hal ${ans.skill}, ` : ''
+    const part5 = ans.meyakinkan ? `saya berkomitmen tinggi memberikan hasil kerja maksimal karena ${ans.meyakinkan}.` : ''
+    return `${part1}${part2}${part3}${part4}${part5}`
+  }
 })
 
 const hasCoverLetter = computed(() => {
@@ -155,7 +167,11 @@ const compiledCoverLetter = computed(() => {
   const email = form.email || '[Alamat Email Profesional]'
   const linkedin = form.linkedin ? ` | ${form.linkedin}` : ''
   
-  return `${namaKlien}\n${domisili} | ${phone} | ${email}${linkedin}\n\n${kota}, ${tanggal}\n\nHal: Lamaran Pekerjaan – ${posisi}\n\nYth. ${penerima}\n${perusahaan}\n${alamat}\n\nDengan hormat,\n\nBerdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui ${sumberInfo}, saya bermaksud untuk mengajukan diri guna mengisi posisi ${posisi} di ${perusahaan}. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.\n\nSaya merupakan seorang profesional yang berpengalaman selama ${tahunExp} tahun di bidang ${keahlian}. Pada peran saya sebelumnya di ${persSebel} sebagai ${jabAkhir}, saya bertanggung jawab penuh dalam ${jobdesk}. Salah satu pencapaian terbesar saya adalah berhasil ${prestasi} dengan menerapkan strategi berbasis data.\n\nSelain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti ${tools}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi ${posisi} di perusahaan Bapak/Ibu.\n\nSebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk ${perusahaan}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.\n\nHormat saya,\n\n${namaKlien}`
+  if (translateToEnglish.value) {
+    return `COVER LETTER\n\nDate: ${kota}, ${tanggal}\nSubject: Job Application – ${posisi}\n\nTo: ${penerima}\n${perusahaan}\n${alamat}\n\nDear Hiring Team,\n\nBased on the job vacancy information published through ${sumberInfo}, I am writing to express my interest in the ${posisi} position at ${perusahaan}. I believe that my professional background and competencies will allow me to make a positive contribution to the development of your company.\n\nI am a professional with ${tahunExp} years of experience in the field of ${keahlian}. In my previous role at ${persSebel} as ${jabAkhir}, I was fully responsible for ${jobdesk}. One of my greatest achievements was successfully ${prestasi} by implementing data-driven strategies.\n\nIn addition to practical experience, I have also mastered technical skills and the use of modern tools such as ${tools}. I am known as an adaptive, goal-oriented individual with excellent communication and team collaboration skills, which are crucial to supporting the performance of the ${posisi} position at your company.\n\nFor further consideration, I have attached my latest Curriculum Vitae (CV) and other supporting documents. I hope to be given the opportunity to attend an interview, so that I can explain in more detail my qualifications, vision, and the tangible contribution I am ready to provide for ${perusahaan}. Thank you for your time, attention, and the opportunity.\n\nSincerely,\n\n${namaKlien}`
+  } else {
+    return `SURAT LAMARAN KERJA\n\nHal: Lamaran Pekerjaan – ${posisi}\n\n${kota}, ${tanggal}\n\nYth. ${penerima}\n${perusahaan}\n${alamat}\n\nDengan hormat,\n\nBerdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui ${sumberInfo}, saya bermaksud untuk mengajukan diri guna mengisi posisi ${posisi} di ${perusahaan}. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.\n\nSaya merupakan seorang profesional yang berpengalaman selama ${tahunExp} tahun di bidang ${keahlian}. Pada peran saya sebelumnya di ${persSebel} as ${jabAkhir}, saya bertanggung jawab penuh dalam ${jobdesk}. Salah satu pencapaian terbesar saya adalah berhasil ${prestasi} dengan menerapkan strategi berbasis data.\n\nSelain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti ${tools}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi ${posisi} di perusahaan Bapak/Ibu.\n\nSebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk ${perusahaan}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.\n\nHormat saya,\n\n${namaKlien}`
+  }
 })
 
 // Photo handler (convert uploaded image to base64)
@@ -661,14 +677,25 @@ const submitCV = async () => {
       <!-- Tabs switcher if the package has Cover Letter -->
       <div class="preview-tabs" v-if="hasCoverLetter">
         <button class="preview-tab-btn" :class="{ 'active': activePreviewTab === 'cv' }" @click="activePreviewTab = 'cv'">
-          📄 Pratinjau CV ATS
+          📄 {{ translateToEnglish ? 'ATS CV Preview' : 'Pratinjau CV ATS' }}
         </button>
         <button class="preview-tab-btn" :class="{ 'active': activePreviewTab === 'cover_letter' }" @click="activePreviewTab = 'cover_letter'">
-          ✉️ Pratinjau Surat Lamaran
+          ✉️ {{ translateToEnglish ? 'Cover Letter Preview' : 'Pratinjau Surat Lamaran' }}
+        </button>
+        <!-- Language Toggle -->
+        <button class="preview-tab-btn lang-toggle-btn" @click="translateToEnglish = !translateToEnglish" style="flex: 0.4; background: rgba(99, 102, 241, 0.2); font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--primary);">
+          🌐 {{ translateToEnglish ? 'IND' : 'ENG' }}
         </button>
       </div>
 
-      <div class="preview-badge" v-if="!hasCoverLetter">⚡ Real-time ATS Preview</div>
+      <!-- Language Toggle if no Cover Letter -->
+      <div class="preview-tabs" v-if="!hasCoverLetter">
+        <div style="flex: 1;"></div>
+        <button class="preview-tab-btn lang-toggle-btn" @click="translateToEnglish = !translateToEnglish" style="max-width: 150px; background: rgba(99, 102, 241, 0.2); font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--primary); margin: 0 1rem;">
+          🌐 {{ translateToEnglish ? 'Ubah ke IND' : 'Translate to ENG' }}
+        </button>
+      </div>
+
       <div class="preview-scroll-container">
         <!-- CV PREVIEW -->
         <div v-if="!hasCoverLetter || activePreviewTab === 'cv'" class="cv-paper-preview" :style="{ fontFamily: form.font_family }">
@@ -690,7 +717,7 @@ const submitCV = async () => {
 
           <!-- Tentang Saya Summary -->
           <div class="cv-section">
-            <div class="cv-section-title">Ringkasan Profesional</div>
+            <div class="cv-section-title">{{ translateToEnglish ? 'Professional Summary' : 'Ringkasan Profesional' }}</div>
             <div class="cv-section-content">
               <p>{{ compiledAboutMe }}</p>
             </div>
@@ -698,7 +725,7 @@ const submitCV = async () => {
 
           <!-- Pendidikan -->
           <div class="cv-section">
-            <div class="cv-section-title">Pendidikan</div>
+            <div class="cv-section-title">{{ translateToEnglish ? 'Education' : 'Pendidikan' }}</div>
             <div class="cv-section-content">
               <div v-for="(edu, idx) in form.education" :key="idx" class="cv-item">
                 <div class="cv-item-header">
@@ -706,7 +733,7 @@ const submitCV = async () => {
                   <span>{{ edu.period || 'Periode (e.g. 2020 - 2024)' }}</span>
                 </div>
                 <div class="cv-item-sub">
-                  <span>Jurusan: {{ edu.major || 'Nama Program Studi' }}</span>
+                  <span>{{ translateToEnglish ? 'Major' : 'Jurusan' }}: {{ edu.major || 'Nama Program Studi' }}</span>
                 </div>
               </div>
             </div>
@@ -714,7 +741,7 @@ const submitCV = async () => {
 
           <!-- Pengalaman Kerja -->
           <div class="cv-section" v-if="form.experience.length > 0">
-            <div class="cv-section-title">Pengalaman Kerja</div>
+            <div class="cv-section-title">{{ translateToEnglish ? 'Work Experience' : 'Pengalaman Kerja' }}</div>
             <div class="cv-section-content">
               <div v-for="(exp, idx) in form.experience" :key="idx" class="cv-item">
                 <div class="cv-item-header">
@@ -722,7 +749,7 @@ const submitCV = async () => {
                   <span>{{ exp.period || 'Periode Waktu Kerja' }}</span>
                 </div>
                 <div class="cv-item-sub">
-                  <span>Role: {{ exp.role || 'Posisi/Jabatan' }}</span>
+                  <span>{{ translateToEnglish ? 'Role' : 'Role' }}: {{ exp.role || 'Posisi/Jabatan' }}</span>
                 </div>
                 <ul class="cv-item-bullets" v-if="exp.jobdesk">
                   <li v-for="(bullet, bidx) in exp.jobdesk.split('\n')" :key="bidx">
@@ -735,7 +762,7 @@ const submitCV = async () => {
 
           <!-- Pengalaman Organisasi -->
           <div class="cv-section" v-if="form.organization.length > 0">
-            <div class="cv-section-title">Pengalaman Organisasi</div>
+            <div class="cv-section-title">{{ translateToEnglish ? 'Organizational Experience' : 'Pengalaman Organisasi' }}</div>
             <div class="cv-section-content">
               <div v-for="(org, idx) in form.organization" :key="idx" class="cv-item">
                 <div class="cv-item-header">
@@ -743,7 +770,7 @@ const submitCV = async () => {
                   <span>{{ org.period || 'Periode Organisasi' }}</span>
                 </div>
                 <div class="cv-item-sub">
-                  <span>Role: {{ org.role || 'Jabatan/Peran' }}</span>
+                  <span>{{ translateToEnglish ? 'Role' : 'Role' }}: {{ org.role || 'Jabatan/Peran' }}</span>
                 </div>
                 <ul class="cv-item-bullets" v-if="org.jobdesk">
                   <li v-for="(bullet, bidx) in org.jobdesk.split('\n')" :key="bidx">
@@ -756,7 +783,7 @@ const submitCV = async () => {
 
           <!-- Sertifikat -->
           <div class="cv-section" v-if="form.certifications.length > 0">
-            <div class="cv-section-title">Sertifikasi & Penghargaan</div>
+            <div class="cv-section-title">{{ translateToEnglish ? 'Certifications & Awards' : 'Sertifikasi & Penghargaan' }}</div>
             <div class="cv-section-content">
               <div v-for="(cert, idx) in form.certifications" :key="idx" class="cv-item">
                 <div class="cv-item-header">
@@ -764,7 +791,7 @@ const submitCV = async () => {
                   <span>{{ cert.period || 'Tahun' }}</span>
                 </div>
                 <div class="cv-item-sub">
-                  <span>Penerbit: {{ cert.issuer || 'Lembaga Penerbit' }}</span>
+                  <span>{{ translateToEnglish ? 'Issuer' : 'Penerbit' }}: {{ cert.issuer || 'Lembaga Penerbit' }}</span>
                 </div>
               </div>
             </div>
@@ -772,7 +799,7 @@ const submitCV = async () => {
 
           <!-- Keahlian -->
           <div class="cv-section">
-            <div class="cv-section-title">Keahlian (Skills)</div>
+            <div class="cv-section-title">{{ translateToEnglish ? 'Skills' : 'Keahlian (Skills)' }}</div>
             <div class="cv-section-content cv-skills-grid">
               <div class="cv-skills-title">Hard Skills:</div>
               <div>{{ form.hard_skills.length > 0 ? form.hard_skills.join(', ') : 'Daftar Hard Skill Anda' }}</div>
@@ -785,15 +812,9 @@ const submitCV = async () => {
 
         <!-- COVER LETTER PREVIEW -->
         <div v-if="hasCoverLetter && activePreviewTab === 'cover_letter'" class="cv-paper-preview" :style="{ fontFamily: form.font_family }">
-          <!-- Sender Info -->
-          <div class="cv-name" style="text-align: left; font-weight: bold; margin-bottom: 4px;">
-            {{ form.full_name || 'NAMA LENGKAP ANDA' }}
-          </div>
-          <div class="cv-contact" style="margin-bottom: 2rem; border-bottom: 2px solid #333333; padding-bottom: 8px; font-size: 8pt; display: flex; flex-wrap: wrap; gap: 6px;">
-            <span>{{ form.address || 'Alamat Tempat Tinggal' }}</span> |
-            <span>{{ form.phone || 'No. HP Aktif' }}</span> |
-            <span>{{ form.email || 'Email Pelamar' }}</span>
-            <span v-if="form.linkedin"> | {{ form.linkedin }}</span>
+          <!-- Document Centered Title -->
+          <div style="text-align: center; font-weight: bold; font-size: 13pt; text-decoration: underline; margin-bottom: 2rem;">
+            {{ translateToEnglish ? 'COVER LETTER' : 'SURAT LAMARAN KERJA' }}
           </div>
 
           <!-- Date -->
@@ -803,41 +824,92 @@ const submitCV = async () => {
 
           <!-- Hal -->
           <div style="font-weight: bold; margin-bottom: 1.5rem; font-size: 9.5pt;">
-            Hal: Lamaran Pekerjaan – {{ form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]' }}
+            {{ translateToEnglish ? 'Subject: Job Application –' : 'Hal: Lamaran Pekerjaan –' }} {{ form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]' }}
           </div>
 
           <!-- Recipient -->
           <div style="margin-bottom: 1.5rem; line-height: 1.4; font-size: 9.5pt;">
-            <strong>Yth. {{ form.cover_letter_answers.penerima_surat || '[HRD Manager / Team Rekrutmen]' }}</strong><br />
+            <strong>{{ translateToEnglish ? 'To:' : 'Yth.' }} {{ form.cover_letter_answers.penerima_surat || '[HRD Manager / Team Rekrutmen]' }}</strong><br />
             {{ form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]' }}<br />
             {{ form.cover_letter_answers.alamat_perusahaan || '[Alamat Perusahaan / Kota]' }}
           </div>
 
           <!-- Salutation -->
           <div style="margin-bottom: 1rem; font-size: 9.5pt;">
-            Dengan hormat,
+            {{ translateToEnglish ? 'Dear Hiring Team,' : 'Dengan hormat,' }}
           </div>
 
-          <!-- Content Paragraphs -->
+          <!-- Content Paragraph 1 (with Biodata block inside) -->
           <div style="line-height: 1.5; text-align: justify; display: flex; flex-direction: column; gap: 1rem; font-size: 9.5pt;">
             <p style="margin: 0; text-indent: 30px;">
-              Berdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui {{ form.cover_letter_answers.sumber_info || '[LinkedIn/Situs Resmi Perusahaan]' }}, saya bermaksud untuk mengajukan diri guna mengisi posisi {{ form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]' }} di {{ form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]' }}. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.
+              {{ 
+                translateToEnglish 
+                  ? `Based on the job vacancy information published through ${form.cover_letter_answers.sumber_info || '[LinkedIn/Situs Resmi]'}, I intend to apply for the ${form.cover_letter_answers.posisi_dilamar || '[Posisi]'} position at ${form.cover_letter_answers.nama_perusahaan || '[Perusahaan]'}. My brief personal biodata details are as follows:` 
+                  : `Berdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui ${form.cover_letter_answers.sumber_info || '[LinkedIn/Situs Resmi Perusahaan]'}, saya bermaksud untuk mengajukan diri guna mengisi posisi ${form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]'} di ${form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]'}. Adapun kualifikasi biodata singkat saya adalah sebagai berikut:`
+              }}
+            </p>
+
+            <!-- Biodata Table inside Cover Letter -->
+            <div style="margin-left: 30px; margin-top: 0.5rem; margin-bottom: 0.5rem;">
+              <table style="border: none; border-collapse: collapse; font-size: 9.5pt;">
+                <tr style="border: none;">
+                  <td style="padding: 2px 8px 2px 0; font-weight: bold; border: none; width: 120px;">{{ translateToEnglish ? 'Name' : 'Nama' }}</td>
+                  <td style="padding: 2px 8px; border: none;">:</td>
+                  <td style="padding: 2px 8px; border: none;">{{ form.full_name || '[Nama Lengkap]' }}</td>
+                </tr>
+                <tr style="border: none;">
+                  <td style="padding: 2px 8px 2px 0; font-weight: bold; border: none;">{{ translateToEnglish ? 'Address' : 'Alamat' }}</td>
+                  <td style="padding: 2px 8px; border: none;">:</td>
+                  <td style="padding: 2px 8px; border: none;">{{ form.address || '[Alamat Tempat Tinggal]' }}</td>
+                </tr>
+                <tr style="border: none;">
+                  <td style="padding: 2px 8px 2px 0; font-weight: bold; border: none;">{{ translateToEnglish ? 'Phone/WA' : 'No. HP/WhatsApp' }}</td>
+                  <td style="padding: 2px 8px; border: none;">:</td>
+                  <td style="padding: 2px 8px; border: none;">{{ form.phone || '[Nomor Telepon]' }}</td>
+                </tr>
+                <tr style="border: none;">
+                  <td style="padding: 2px 8px 2px 0; font-weight: bold; border: none;">Email</td>
+                  <td style="padding: 2px 8px; border: none;">:</td>
+                  <td style="padding: 2px 8px; border: none;">{{ form.email || '[Email Pelamar]' }}</td>
+                </tr>
+                <tr style="border: none;" v-if="form.linkedin">
+                  <td style="padding: 2px 8px 2px 0; font-weight: bold; border: none;">LinkedIn</td>
+                  <td style="padding: 2px 8px; border: none;">:</td>
+                  <td style="padding: 2px 8px; border: none;">{{ form.linkedin }}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Paragraph 2, 3, 4 -->
+            <p style="margin: 0; text-indent: 30px;">
+              {{
+                translateToEnglish
+                  ? `I am a professional with ${form.cover_letter_answers.tahun_pengalaman || '[X]'} years of experience in the field of ${form.cover_letter_answers.bidang_keahlian || '[Keahlian]'}. In my previous role at ${form.cover_letter_answers.perusahaan_sebelumnya || '[Perusahaan Sebelumnya]'} as ${form.cover_letter_answers.jabatan_terakhir || '[Jabatan Terakhir]'}, I was fully responsible for ${form.cover_letter_answers.jobdesc_singkat || '[Jobdesk]'}. One of my greatest achievements was successfully ${form.cover_letter_answers.prestasi || '[Prestasi Terbaik]'} by implementing data-driven strategies.`
+                  : `Saya merupakan seorang profesional yang berpengalaman selama ${form.cover_letter_answers.tahun_pengalaman || '[X]'} tahun di bidang ${form.cover_letter_answers.bidang_keahlian || '[Sebutkan Bidang Keahlian Utama]'}. Pada peran saya sebelumnya di ${form.cover_letter_answers.perusahaan_sebelumnya || '[Nama Perusahaan Sebelumnya]'} sebagai ${form.cover_letter_answers.jabatan_terakhir || '[Jabatan Terakhir]'}, saya bertanggung jawab penuh dalam ${form.cover_letter_answers.jobdesc_singkat || '[Sebutkan core job desc utama singkat]'}. Salah satu pencapaian terbesar saya adalah berhasil ${form.cover_letter_answers.prestasi || '[Sebutkan Prestasi Terbaik]'} dengan menerapkan strategi berbasis data.`
+              }}
             </p>
             <p style="margin: 0; text-indent: 30px;">
-              Saya merupakan seorang profesional yang berpengalaman selama {{ form.cover_letter_answers.tahun_pengalaman || '[X]' }} tahun di bidang {{ form.cover_letter_answers.bidang_keahlian || '[Sebutkan Bidang Keahlian Utama]' }}. Pada peran saya sebelumnya di {{ form.cover_letter_answers.perusahaan_sebelumnya || '[Nama Perusahaan Sebelumnya]' }} sebagai {{ form.cover_letter_answers.jabatan_terakhir || '[Jabatan Terakhir]' }}, saya bertanggung jawab penuh dalam {{ form.cover_letter_answers.jobdesc_singkat || '[Sebutkan core job desc utama singkat]' }}. Salah satu pencapaian terbesar saya adalah berhasil {{ form.cover_letter_answers.prestasi || '[Sebutkan Prestasi Terbaik]' }} dengan menerapkan strategi berbasis data.
+              {{
+                translateToEnglish
+                  ? `In addition to practical experience, I have also mastered technical skills and the use of modern tools such as ${form.cover_letter_answers.tools_kunci || '[Tools Kunci]'}. I am known as an adaptive, goal-oriented individual with excellent communication and team collaboration skills, which are crucial to supporting the performance of the ${form.cover_letter_answers.posisi_dilamar || '[Posisi]'} position at your company.`
+                  : `Selain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti ${form.cover_letter_answers.tools_kunci || '[Sebutkan 2-3 Tools / Keterampilan Teknis khusus yang relevan]'}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi ${form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]'} di perusahaan Bapak/Ibu.`
+              }}
             </p>
             <p style="margin: 0; text-indent: 30px;">
-              Selain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti {{ form.cover_letter_answers.tools_kunci || '[Sebutkan 2-3 Tools / Keterampilan Teknis khusus]' }}. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi {{ form.cover_letter_answers.posisi_dilamar || '[Nama Posisi yang Dilamar]' }} di perusahaan Bapak/Ibu.
-            </p>
-            <p style="margin: 0; text-indent: 30px;">
-              Sebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk {{ form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]' }}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.
+              {{
+                translateToEnglish
+                  ? `For further consideration, I have attached my latest Curriculum Vitae (CV) and other supporting documents. I hope to be given the opportunity to attend an interview, so that I can explain in more detail my qualifications, vision, and the tangible contribution I am ready to provide for ${form.cover_letter_answers.nama_perusahaan || '[Perusahaan Tujuan]'}. Thank you for your time, attention, and the opportunity.`
+                  : `Sebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk ${form.cover_letter_answers.nama_perusahaan || '[Nama Perusahaan Tujuan]'}. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.`
+              }}
             </p>
           </div>
 
-          <!-- Closing -->
-          <div style="margin-top: 2.5rem; text-align: right; width: 220px; float: right; font-size: 9.5pt; line-height: 1.4;">
-            <p style="margin: 0 0 3.5rem 0;">Hormat saya,</p>
-            <strong>{{ form.full_name || '[Nama Lengkap Klien]' }}</strong>
+          <!-- Closing Signature (Rata Kanan) -->
+          <div style="margin-top: 2.5rem; text-align: right; width: 100%; display: flex; justify-content: flex-end; font-size: 9.5pt; line-height: 1.4;">
+            <div style="text-align: left; width: 220px;">
+              <p style="margin: 0 0 3.5rem 0;">{{ translateToEnglish ? 'Sincerely,' : 'Hormat saya,' }}</p>
+              <strong>{{ form.full_name || '[Nama Lengkap Klien]' }}</strong>
+            </div>
           </div>
           <div style="clear: both;"></div>
         </div>
