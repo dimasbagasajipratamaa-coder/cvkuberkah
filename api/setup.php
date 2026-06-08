@@ -296,21 +296,21 @@ try {
             "id" => "ats_classic",
             "name" => "Classic Charcoal ATS",
             "type" => "CV ATS",
-            "image" => "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&auto=format&fit=crop&q=60",
+            "image" => "/cvkuberkah/dist/images/ats_classic.png",
             "description" => "Desain ATS klasik berkolom tunggal dengan penekanan hirarki teks tebal (charcoal). Sangat ideal untuk bidang keuangan, hukum, dan manajemen."
         ],
         [
             "id" => "ats_modern",
             "name" => "Minimalist Slate ATS",
             "type" => "CV ATS",
-            "image" => "https://images.unsplash.com/photo-1586282301770-852d0e722513?w=500&auto=format&fit=crop&q=60",
+            "image" => "/cvkuberkah/dist/images/ats_modern.png",
             "description" => "Desain minimalis dengan aksen warna slate abu-abu modern. Sempurna untuk lulusan IT, kreatif, pemasaran digital, dan startup."
         ],
         [
             "id" => "cover_letter_formal",
             "name" => "Modern Cover Letter Template",
             "type" => "Surat Lamaran",
-            "image" => "https://images.unsplash.com/photo-1586281380117-5a60ae2010cd?w=500&auto=format&fit=crop&q=60",
+            "image" => "/cvkuberkah/dist/images/cover_letter.png",
             "description" => "Format surat lamaran kerja terstruktur yang ringkas, formal, dan relevan dengan standar rekrutmen terbaru."
         ]
     ];
