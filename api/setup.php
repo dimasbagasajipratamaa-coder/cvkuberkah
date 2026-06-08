@@ -92,12 +92,116 @@ try {
 
     // Default Customer User Seed (if not exists, for quick testing)
     $customerEmail = 'customer@gmail.com';
-    $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt = $db->prepare("SELECT id, name FROM users WHERE email = ?");
     $stmt->execute([$customerEmail]);
-    if (!$stmt->fetch()) {
+    $customer = $stmt->fetch();
+    if (!$customer) {
         $customerPassword = password_hash('customer123', PASSWORD_DEFAULT);
         $insertCust = $db->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
         $insertCust->execute(['Ahmad Customer', $customerEmail, $customerPassword, 'customer']);
+        $customerId = $db->lastInsertId();
+    } else {
+        $customerId = $customer['id'];
+    }
+
+    // Seed a dummy CV & Cover Letter request for this customer (if not exists)
+    $stmt = $db->prepare("SELECT id FROM cv_requests WHERE user_id = ?");
+    $stmt->execute([$customerId]);
+    if (!$stmt->fetch()) {
+        $dummyPhotoPath = "/Applications/XAMPP/xamppfiles/htdocs/cvkuberkah/frontend/public/dummy_photo.png";
+        $photoBase64 = "";
+        if (file_exists($dummyPhotoPath)) {
+            $imageData = file_get_contents($dummyPhotoPath);
+            $photoBase64 = "data:image/png;base64," . base64_encode($imageData);
+        }
+
+        $fullName = "Dimas Bagas";
+        $email = "dimasbagasajipratamaa@gmail.com";
+        $phone = "085143606723";
+        $address = "Alamat Tempat Tinggal, Jakarta, Indonesia";
+        $linkedin = "linkedin.com/in/dimasbagas";
+        
+        $aboutMe = "Saya merupakan lulusan S1 Teknik Informatika dari Universitas Indonesia. Saya memiliki ketertarikan karir yang tinggi di bidang Software Engineer. Memiliki pengalaman di mana saya telah magang selama 6 bulan di startup e-commerce lokal. Didukung dengan keahlian yang mendalam dalam hal Vue.js, PHP, MySQL, Figma, saya berkomitmen tinggi memberikan hasil kerja maksimal karena saya memiliki dedikasi tinggi untuk memecahkan problem kode rumit.";
+        
+        $aboutMeAnswers = json_encode([
+            "lulusan" => "S1 Teknik Informatika dari Universitas Indonesia",
+            "karir" => "Software Engineer",
+            "pengalaman" => "magang selama 6 bulan di startup e-commerce lokal",
+            "skill" => "Vue.js, PHP, MySQL, Figma",
+            "meyakinkan" => "saya memiliki dedikasi tinggi untuk memecahkan problem kode rumit"
+        ]);
+        
+        $education = json_encode([
+            [
+                "school" => "Universitas Indonesia",
+                "major" => "S1 Teknik Informatika",
+                "period" => "2020 - 2024"
+            ]
+        ]);
+        
+        $organization = json_encode([
+            [
+                "name" => "Himpunan Mahasiswa Informatika",
+                "role" => "Ketua Divisi Humas",
+                "jobdesk" => "Mengkoordinasikan publikasi acara jurusan.\nMenjalin relasi dengan eksternal kampus.",
+                "period" => "2021 - 2022"
+            ]
+        ]);
+        
+        $experience = json_encode([
+            [
+                "company" => "E-Commerce Startup",
+                "role" => "Software Engineer Intern",
+                "jobdesk" => "Mengembangkan fitur frontend menggunakan Vue 3.\nOptimasi query database MySQL hingga meningkatkan performa 15%.",
+                "period" => "Maret - Agustus 2023"
+            ]
+        ]);
+        
+        $certifications = json_encode([
+            [
+                "name" => "AWS Certified Cloud Practitioner",
+                "issuer" => "Amazon Web Services",
+                "period" => "2023"
+            ]
+        ]);
+        
+        $softSkills = json_encode(["Komunikasi Efektif", "Manajemen Waktu", "Kolaborasi Tim", "Problem Solving"]);
+        $hardSkills = json_encode(["Vue.js", "PHP", "MySQL", "Git", "Figma", "HTML/CSS"]);
+        
+        $coverLetter = "SURAT LAMARAN KERJA\n\nHal: Lamaran Pekerjaan – Software Engineer\n\nJakarta, 8 Juni 2026\n\nYth. HRD Manager / Team Rekrutmen\nPT GoTo Gojek Tokopedia\nJakarta Selatan\n\nDengan hormat,\n\nBerdasarkan informasi lowongan pekerjaan yang dipublikasikan melalui LinkedIn, saya bermaksud untuk mengajukan diri guna mengisi posisi Software Engineer di PT GoTo Gojek Tokopedia. Saya meyakini bahwa latar belakang profesional dan kompetensi yang saya miliki akan mampu memberikan kontribusi positif bagi perkembangan perusahaan Anda.\n\nSaya merupakan seorang profesional yang berpengalaman selama 1 tahun di bidang Software Engineering. Pada peran saya sebelumnya di E-Commerce Startup sebagai Software Engineer Intern, saya bertanggung jawab penuh dalam mengembangkan fitur frontend dan optimasi query database. Salah satu pencapaian terbesar saya adalah berhasil mengoptimasikan performa sistem hingga 15% dengan menerapkan strategi berbasis data.\n\nSelain pengalaman praktis, saya juga menguasai keahlian teknis serta penggunaan instrumen kerja modern seperti Vue 3, PHP, dan MySQL. Saya dikenal sebagai individu yang adaptif, berorientasi pada target, serta memiliki kemampuan komunikasi dan kolaborasi tim yang sangat baik, yang mana aspek-aspek tersebut sangat krusial untuk menunjang performa posisi Software Engineer di perusahaan Bapak/Ibu.\n\nSebagai bahan pertimbangan lebih lanjut, bersama surat ini saya lampirkan berkas Curriculum Vitae (CV) terbaru beserta dokumen pendukung lainnya. Besar harapan saya untuk diberikan kesempatan menghadiri sesi wawancara, agar saya dapat memaparkan lebih mendalam mengenai kualifikasi, visi, dan bentuk kontribusi nyata yang siap saya berikan untuk PT GoTo Gojek Tokopedia. Terima kasih atas waktu, perhatian, dan kesempatan yang Bapak/Ibu berikan.\n\nHormat saya,\n\nDimas Bagas";
+        
+        $coverLetterAnswers = json_encode([
+            "kota_pembuatan" => "Jakarta",
+            "tanggal_pembuatan" => "8 Juni 2026",
+            "posisi_dilamar" => "Software Engineer",
+            "penerima_surat" => "HRD Manager / Team Rekrutmen",
+            "nama_perusahaan" => "PT GoTo Gojek Tokopedia",
+            "alamat_perusahaan" => "Jakarta Selatan",
+            "sumber_info" => "LinkedIn",
+            "tahun_pengalaman" => "1",
+            "bidang_keahlian" => "Software Engineering",
+            "perusahaan_sebelumnya" => "E-Commerce Startup",
+            "jabatan_terakhir" => "Software Engineer Intern",
+            "jobdesc_singkat" => "mengembangkan fitur frontend dan optimasi query database",
+            "prestasi" => "mengoptimasikan performa sistem hingga 15%",
+            "tools_kunci" => "Vue 3, PHP, dan MySQL"
+        ]);
+        
+        $insertCV = $db->prepare("INSERT INTO cv_requests (
+            user_id, full_name, email, phone, address, linkedin, about_me, about_me_answers, 
+            education, organization, experience, certifications, soft_skills, hard_skills, 
+            photo_url, font_family, cover_letter, cover_letter_answers, payment_status, package_name, price
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, 
+            ?, ?, ?, ?, ?, ?, 
+            ?, 'Times New Roman, serif', ?, ?, 'verified', 'Paket Bundle CV & Surat Lamaran', 60000.00
+        )");
+        
+        $insertCV->execute([
+            $customerId, $fullName, $email, $phone, $address, $linkedin, $aboutMe, $aboutMeAnswers,
+            $education, $organization, $experience, $certifications, $softSkills, $hardSkills,
+            $photoBase64, $coverLetter, $coverLetterAnswers
+        ]);
     }
 
     // Content settings seed helper
