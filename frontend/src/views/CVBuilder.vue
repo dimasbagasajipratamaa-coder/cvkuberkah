@@ -906,7 +906,7 @@ const submitCV = async () => {
 
           <!-- Closing Signature (Rata Kanan) -->
           <div style="margin-top: 2.5rem; text-align: right; width: 100%; display: flex; justify-content: flex-end; font-size: 9.5pt; line-height: 1.4;">
-            <div style="text-align: left; width: 220px;">
+            <div style="text-align: left; width: 160px;">
               <p style="margin: 0 0 3.5rem 0;">{{ translateToEnglish ? 'Sincerely,' : 'Hormat saya,' }}</p>
               <strong>{{ form.full_name || '[Nama Lengkap Klien]' }}</strong>
             </div>

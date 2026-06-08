@@ -844,7 +844,7 @@ onMounted(() => {
 
               <!-- Closing Signature block (Rata Kanan) -->
               <div style="margin-top: 3rem; text-align: right; width: 100%; display: flex; justify-content: flex-end; font-size: 10pt; line-height: 1.4;">
-                <div style="text-align: left; width: 220px;">
+                <div style="text-align: left; width: 160px;">
                   <p style="margin: 0 0 3.5rem 0;">{{ translateToEnglish ? 'Sincerely,' : 'Hormat saya,' }}</p>
                   <strong>{{ selectedCVDetails.full_name }}</strong>
                 </div>
